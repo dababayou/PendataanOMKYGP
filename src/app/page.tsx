@@ -40,7 +40,7 @@ export default function HomePage() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
           </span>
-          <span className="text-white text-xs font-black tracking-widest uppercase">Penerimaan Anggota 2025</span>
+          <span className="text-white text-xs font-black tracking-widest uppercase">Pendataan Anggota OMK Stasi YGP 2026</span>
         </div>
 
         <h1 className="text-6xl md:text-[5.5rem] font-black text-white leading-[1.1] mb-8 tracking-tighter drop-shadow-2xl">
@@ -104,7 +104,7 @@ export default function HomePage() {
       </main>
 
       <footer className="relative z-10 text-center py-10 text-white/40 text-sm font-bold tracking-widest uppercase">
-        © 2025 OMK Yohanes Gabriel Perboyre
+        © 2026 OMK Yohanes Gabriel Perboyre
       </footer>
     </div>
   )
