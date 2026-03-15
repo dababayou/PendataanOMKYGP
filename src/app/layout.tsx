@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Pendataan OMK YGP',
-  description: 'Sistem pendataan anggota Orang Muda Katolik Yohanes Gabriel Palu',
+  description: 'Sistem pendataan anggota Orang Muda Katolik Yohanes Gabriel Perboyre',
 }
 
 export default function RootLayout({
@@ -16,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className="h-full">
-      <body className={`${inter.className} h-full bg-gray-50 text-gray-900 antialiased`}>
+      <body className="h-full bg-gray-50 text-gray-900 antialiased">
         {children}
       </body>
     </html>

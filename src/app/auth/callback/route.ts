@@ -27,8 +27,10 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error && data.user) {
-      const adminEmail = process.env.ADMIN_EMAIL
-      const dest = data.user.email === adminEmail ? '/admin' : '/dashboard'
+      const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+      const dest = adminEmails.includes((data.user.email ?? '').toLowerCase()) ? '/admin' : '/dashboard'
       return NextResponse.redirect(`${origin}${dest}`)
     }
   }

@@ -6,31 +6,43 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   hint?: string
 }
 
-export function Input({ label, error, hint, className = '', id, ...props }: InputProps) {
+const COLORS = {
+  red: '#d12027',
+  redLight: '#fbe9e9',
+  green: '#00a54d',
+}
+
+export function Input({ label, error, hint, className = '', id, style, ...props }: InputProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+      <label htmlFor={inputId} className="text-sm font-semibold text-gray-700">
         {label}
-        {props.required && <span className="text-red-500 ml-0.5">*</span>}
+        {props.required && <span className="ml-0.5" style={{ color: COLORS.red }}>*</span>}
       </label>
       <input
         id={inputId}
+        style={{
+          borderColor: error ? COLORS.red : undefined,
+          backgroundColor: error ? COLORS.redLight : undefined,
+          ...style
+        }}
         className={`
-          w-full px-3.5 py-2.5 rounded-lg border text-sm
-          transition-colors duration-150 outline-none
+          w-full px-4 py-3 rounded-xl border text-sm
+          transition-all duration-200 outline-none
           placeholder:text-gray-400
           ${error
-            ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100 bg-red-50'
-            : 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white'
+            ? 'focus:ring-2 focus:ring-red-500/10'
+            : 'border-gray-300 focus:border-brand-green focus:ring-4 focus:ring-green-500/10 bg-white'
           }
           disabled:bg-gray-50 disabled:cursor-not-allowed
+          shadow-sm
           ${className}
         `}
         {...props}
       />
-      {hint && !error && <p className="text-xs text-gray-500">{hint}</p>}
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {hint && !error && <p className="text-xs text-gray-500 ml-1">{hint}</p>}
+      {error && <p className="text-xs font-medium ml-1" style={{ color: COLORS.red }}>{error}</p>}
     </div>
   )
 }
@@ -42,24 +54,29 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   placeholder?: string
 }
 
-export function Select({ label, error, options, placeholder, className = '', id, ...props }: SelectProps) {
+export function Select({ label, error, options, placeholder, className = '', id, style, ...props }: SelectProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+      <label htmlFor={inputId} className="text-sm font-semibold text-gray-700">
         {label}
-        {props.required && <span className="text-red-500 ml-0.5">*</span>}
+        {props.required && <span className="ml-0.5" style={{ color: COLORS.red }}>*</span>}
       </label>
       <select
         id={inputId}
+        style={{
+          borderColor: error ? COLORS.red : undefined,
+          ...style
+        }}
         className={`
-          w-full px-3.5 py-2.5 rounded-lg border text-sm
-          transition-colors duration-150 outline-none bg-white
+          w-full px-4 py-3 rounded-xl border text-sm
+          transition-all duration-200 outline-none bg-white
           ${error
-            ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-            : 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
+            ? 'focus:ring-2 focus:ring-red-500/10'
+            : 'border-gray-300 focus:border-brand-green focus:ring-4 focus:ring-green-500/10'
           }
           disabled:bg-gray-50 disabled:cursor-not-allowed
+          shadow-sm
           ${className}
         `}
         {...props}
@@ -75,7 +92,7 @@ export function Select({ label, error, options, placeholder, className = '', id,
           </option>
         ))}
       </select>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs font-medium ml-1" style={{ color: COLORS.red }}>{error}</p>}
     </div>
   )
 }
@@ -85,30 +102,36 @@ interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
   error?: string
 }
 
-export function TextArea({ label, error, className = '', id, ...props }: TextAreaProps) {
+export function TextArea({ label, error, className = '', id, style, ...props }: TextAreaProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+      <label htmlFor={inputId} className="text-sm font-semibold text-gray-700">
         {label}
-        {props.required && <span className="text-red-500 ml-0.5">*</span>}
+        {props.required && <span className="ml-0.5" style={{ color: COLORS.red }}>*</span>}
       </label>
       <textarea
         id={inputId}
         rows={3}
+        style={{
+          borderColor: error ? COLORS.red : undefined,
+          backgroundColor: error ? COLORS.redLight : undefined,
+          ...style
+        }}
         className={`
-          w-full px-3.5 py-2.5 rounded-lg border text-sm resize-none
-          transition-colors duration-150 outline-none
+          w-full px-4 py-3 rounded-xl border text-sm resize-none
+          transition-all duration-200 outline-none
           placeholder:text-gray-400
           ${error
-            ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100 bg-red-50'
-            : 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white'
+            ? 'focus:ring-2 focus:ring-red-500/10'
+            : 'border-gray-300 focus:border-brand-green focus:ring-4 focus:ring-green-500/10 bg-white'
           }
+          shadow-sm
           ${className}
         `}
         {...props}
       />
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs font-medium ml-1" style={{ color: COLORS.red }}>{error}</p>}
     </div>
   )
 }

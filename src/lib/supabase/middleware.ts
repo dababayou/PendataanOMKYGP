@@ -36,10 +36,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Admin-only route: check email
+  // Admin-only route: check if email is in the admin list
   if (user && pathname.startsWith('/admin')) {
-    const adminEmail = process.env.ADMIN_EMAIL
-    if (user.email !== adminEmail) {
+    const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+    if (!adminEmails.includes((user.email ?? '').toLowerCase())) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)

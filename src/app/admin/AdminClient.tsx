@@ -1,180 +1,165 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import React, { useState } from 'react'
+import { Button } from '@/components/ui/Button'
 
 interface Member {
   id: string
   nama_lengkap: string
   email: string
+  wilayah: string
+  unique_number: string
   nomor_telepon: string
   alamat: string
-  wilayah: string
   tanggal_lahir: string
-  unique_number: string
+  is_redeemed: boolean
   created_at: string
 }
 
 interface AdminClientProps {
-  members: Member[]
+  initialMembers: Member[]
 }
 
-export function AdminClient({ members }: AdminClientProps) {
+export default function AdminClient({ initialMembers }: AdminClientProps) {
+  const [members] = useState<Member[]>(initialMembers)
   const [search, setSearch] = useState('')
   const [wilayahFilter, setWilayahFilter] = useState('')
 
-  const wilayahList = useMemo(() => {
-    return Array.from(new Set(members.map((m) => m.wilayah))).sort()
-  }, [members])
+  const wilayahList = Array.from(new Set(members.map((m) => m.wilayah))).sort()
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase()
-    return members.filter((m) => {
-      const matchSearch =
-        !q ||
-        m.nama_lengkap.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        m.unique_number.includes(q) ||
-        m.nomor_telepon.includes(q)
-      const matchWilayah = !wilayahFilter || m.wilayah === wilayahFilter
-      return matchSearch && matchWilayah
-    })
-  }, [members, search, wilayahFilter])
+  const filteredMembers = members.filter((m) => {
+    const s = search.toLowerCase()
+    const matchesSearch =
+      m.nama_lengkap.toLowerCase().includes(s) ||
+      m.email.toLowerCase().includes(s) ||
+      m.unique_number.includes(s)
+    const matchesWilayah = !wilayahFilter || m.wilayah === wilayahFilter
+    return matchesSearch && matchesWilayah
+  })
 
   function exportCSV() {
-    const headers = ['No. Unik', 'Nama Lengkap', 'Email', 'Nomor Telepon', 'Wilayah', 'Tanggal Lahir', 'Alamat', 'Terdaftar']
-    const rows = filtered.map((m) => [
-      m.unique_number,
-      m.nama_lengkap,
-      m.email,
-      m.nomor_telepon,
-      m.wilayah,
-      m.tanggal_lahir,
-      `"${m.alamat.replace(/"/g, '""')}"`,
-      new Date(m.created_at).toLocaleDateString('id-ID'),
-    ])
+    const headers = ['Nama', 'Email', 'Wilayah', 'Nomor Unik', 'Nomor WA', 'Tgl Lahir', 'Status Tukar', 'Terdaftar']
+    const csvContent = [
+      headers.join(','),
+      ...filteredMembers.map((m) =>
+        [
+          `"${m.nama_lengkap}"`,
+          m.email,
+          m.wilayah,
+          m.unique_number,
+          m.nomor_telepon,
+          m.tanggal_lahir,
+          m.is_redeemed ? 'SUDAH' : 'BELUM',
+          new Date(m.created_at).toLocaleString(),
+        ].join(',')
+      ),
+    ].join('\n')
 
-    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `anggota-omk-ygp-${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `pendataan_omkygp_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
-    <div>
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: 'Total Anggota', value: members.length, color: 'text-indigo-600' },
-          { label: 'Hasil Pencarian', value: filtered.length, color: 'text-purple-600' },
-          { label: 'Nomor Digunakan', value: members.length, color: 'text-green-600' },
-          { label: 'Sisa Nomor', value: 1000 - members.length, color: 'text-orange-600' },
-        ].map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-            <p className="text-xs text-gray-500 font-medium">{s.label}</p>
-            <p className={`text-3xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+    <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden">
+      {/* Table Header / Controls */}
+      <div className="p-8 border-b border-gray-100 bg-gray-50/50">
+        <div className="flex flex-col md:flex-row gap-4 items-end justify-between">
+          <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+              <input
+                type="text"
+                placeholder="Cari nama, email, kode..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-gray-100 focus:border-brand-green outline-none transition-all font-bold text-sm"
+              />
+            </div>
+            <select
+              value={wilayahFilter}
+              onChange={(e) => setWilayahFilter(e.target.value)}
+              className="px-4 py-3 rounded-2xl border-2 border-gray-100 focus:border-brand-green outline-none transition-all bg-white font-bold text-sm cursor-pointer"
+            >
+              <option value="">Semua Wilayah</option>
+              {wilayahList.map((w) => (
+                <option key={w} value={w}>{w}</option>
+              ))}
+            </select>
           </div>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Cari nama, email, nomor unik..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
-            />
-          </div>
-          <select
-            value={wilayahFilter}
-            onChange={(e) => setWilayahFilter(e.target.value)}
-            className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 bg-white"
-          >
-            <option value="">Semua Wilayah</option>
-            {wilayahList.map((w) => (
-              <option key={w} value={w}>{w}</option>
-            ))}
-          </select>
-          <button
-            onClick={exportCSV}
-            className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors whitespace-nowrap"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Export CSV
-          </button>
+          <Button onClick={exportCSV} className="whitespace-nowrap h-[48px] px-8">
+            📥 Download CSV
+          </Button>
+        </div>
+        <div className="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+           Menampilkan {filteredMembers.length} dari {members.length} Anggota
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">No. Unik</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Wilayah</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Telepon</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tgl Lahir</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Terdaftar</th>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-gray-50/50">
+              <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Nomor Unik</th>
+              <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Nama Lengkap</th>
+              <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Wilayah</th>
+              <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status Tukar</th>
+              <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Kontak</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {filteredMembers.map((m) => (
+              <tr key={m.id} className="hover:bg-gray-50 transition-colors group">
+                <td className="px-6 py-5">
+                  <span className="px-4 py-1.5 bg-brand-purple/10 text-brand-purple font-black rounded-xl text-lg font-mono">
+                    {m.unique_number}
+                  </span>
+                </td>
+                <td className="px-6 py-5">
+                  <div className="font-bold text-gray-900">{m.nama_lengkap}</div>
+                  <div className="text-xs text-gray-400 font-medium">{m.email}</div>
+                </td>
+                <td className="px-6 py-5">
+                   <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                     {m.wilayah}
+                   </span>
+                </td>
+                <td className="px-6 py-5">
+                  {m.is_redeemed ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-100">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      SUDAH
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-[10px] font-black uppercase tracking-widest">
+                      BELUM
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-5">
+                   <div className="text-sm font-bold text-gray-700">{m.nomor_telepon}</div>
+                   <div className="text-[10px] text-gray-400 font-medium">
+                     Join: {new Date(m.created_at).toLocaleDateString('id-ID')}
+                   </div>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-12 text-gray-400">
-                    <svg className="w-10 h-10 mx-auto mb-3 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
-                    </svg>
-                    Tidak ada anggota yang ditemukan
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((m) => (
-                  <tr key={m.id} className="hover:bg-indigo-50/30 transition-colors">
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-mono font-bold text-base">
-                        {m.unique_number}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 font-medium text-gray-900">{m.nama_lengkap}</td>
-                    <td className="px-5 py-4 text-gray-600">{m.email}</td>
-                    <td className="px-5 py-4">
-                      <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-xs font-medium ring-1 ring-purple-200">
-                        {m.wilayah}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-gray-600">{m.nomor_telepon}</td>
-                    <td className="px-5 py-4 text-gray-600">
-                      {new Date(m.tanggal_lahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="px-5 py-4 text-gray-500 text-xs">
-                      {new Date(m.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        {filtered.length > 0 && (
-          <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 text-xs text-gray-400">
-            Menampilkan {filtered.length} dari {members.length} anggota
-          </div>
-        )}
+            ))}
+            {filteredMembers.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-6 py-20 text-center text-gray-400 font-bold">
+                   Tidak ada data yang ditemukan 🔍
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   )

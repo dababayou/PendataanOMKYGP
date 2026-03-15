@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/actions/auth'
+import { UniqueNumberCard } from '@/components/UniqueNumberCard'
+import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -10,6 +12,11 @@ export default async function DashboardPage() {
   if (!user) {
     redirect('/login')
   }
+
+  const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+  const isAdmin = adminEmails.includes((user.email ?? '').toLowerCase())
 
   // Fetch member data using service client (to bypass RLS safely on server)
   const serviceSupabase = createServiceClient()
@@ -22,105 +29,120 @@ export default async function DashboardPage() {
   const firstName = member?.nama_lengkap?.split(' ')[0] ?? 'Anggota'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      {/* Top navbar */}
-      <header className="bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-bold">✟</span>
-            </div>
-            <span className="font-semibold text-gray-800">OMK YGP</span>
+    <div className="min-h-screen font-sans" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #fef2f2 100%)' }}>
+      {/* Subtle decorative background blobs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] opacity-[0.05]" style={{ background: '#902681' }} />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-[100px] opacity-[0.05]" style={{ background: '#00a54d' }} />
+      </div>
+
+      {/* Top Navbar */}
+      <header className="bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <img src="/logo.png" alt="OMK YGP" className="h-10 w-10 object-contain transition-transform group-hover:scale-110" />
+            <span className="font-black text-gray-900 tracking-tighter">OMK YGP</span>
+          </Link>
+          
+          <div className="flex items-center gap-4">
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="text-xs font-black text-brand-green border-2 border-brand-green/20 px-4 py-2 rounded-xl hover:bg-brand-green hover:text-white transition-all uppercase tracking-widest shadow-sm"
+              >
+                Panel Admin
+              </Link>
+            )}
+            <form action={signOut}>
+              <button
+                type="submit"
+                className="flex items-center gap-2 text-xs font-black text-gray-400 hover:text-red-600 transition-all uppercase tracking-widest px-4 py-2 hover:bg-red-50 rounded-xl"
+              >
+                Keluar
+              </button>
+            </form>
           </div>
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-red-600 transition-colors font-medium px-3 py-1.5 rounded-lg hover:bg-red-50"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Keluar
-            </button>
-          </form>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-10">
-        {/* Welcome */}
-        <div className="mb-8">
-          <p className="text-indigo-600 text-sm font-medium mb-1">Dashboard Anggota</p>
-          <h1 className="text-3xl font-bold text-gray-900">Selamat datang, {firstName}! 👋</h1>
-          <p className="text-gray-500 mt-1">Ini adalah informasi keanggotaan Anda di OMK Yohanes Gabriel Palu.</p>
+      <main className="max-w-6xl mx-auto px-6 py-12 relative z-10">
+        {/* Welcome Section */}
+        <div className="mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-green/10 text-brand-green text-[10px] font-black uppercase tracking-[0.2em] rounded-full mb-4">
+             Dashboard Anggota
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Halo, {firstName}! 👋</h1>
+          <p className="text-gray-500 font-bold mt-2 text-lg">Senang melihat kamu kembali di OMK YGP.</p>
         </div>
 
         {error || !member ? (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-start gap-4">
-            <svg className="w-6 h-6 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
+          <div className="bg-amber-50 border-2 border-dashed border-amber-200 rounded-[2.5rem] p-10 flex items-center gap-6 shadow-xl">
+            <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0">
+               <span className="text-3xl">⚠️</span>
+            </div>
             <div>
-              <p className="font-semibold text-amber-800">Data anggota tidak ditemukan</p>
-              <p className="text-sm text-amber-600 mt-1">Email Anda belum terdaftar sebagai anggota OMK YGP. Silakan daftar terlebih dahulu.</p>
+              <p className="font-black text-amber-800 text-xl tracking-tight leading-none">Data tidak ditemukan</p>
+              <p className="text-amber-700 font-medium mt-2">Email kamu belum terdaftar sebagai anggota. Silakan daftar dulu ya!</p>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Nomor Unik — hero card */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Unique Number Card */}
             <div className="lg:col-span-1">
-              <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 text-center shadow-xl shadow-indigo-200 h-full flex flex-col items-center justify-center">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                </div>
-                <p className="text-indigo-200 text-xs font-semibold tracking-widest uppercase mb-3">Nomor Anggota</p>
-                <p className="text-8xl font-bold text-white font-mono tracking-widest leading-none">
-                  {member.unique_number}
-                </p>
-                <p className="text-indigo-300 text-xs mt-4">Nomor unik Anda di OMK YGP</p>
-              </div>
+               <UniqueNumberCard
+                 uniqueNumber={member.unique_number}
+                 isRedeemed={member.is_redeemed ?? false}
+                 email={member.email}
+               />
             </div>
 
-            {/* Member info */}
-            <div className="lg:col-span-2 flex flex-col gap-4">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Informasi Pribadi</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Member Details */}
+            <div className="lg:col-span-2 flex flex-col gap-6">
+              <div className="bg-white rounded-[3rem] shadow-2xl border border-gray-100 p-10 overflow-hidden relative">
+                {/* Accent strip */}
+                <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: 'linear-gradient(90deg, #d12027, #00a54d, #902681)' }} />
+                
+                <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-10">Profil Member ✨</h2>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {[
-                    { label: 'Nama Lengkap', value: member.nama_lengkap, icon: '👤' },
-                    { label: 'Email', value: member.email, icon: '✉️' },
-                    { label: 'Wilayah', value: member.wilayah, icon: '📍' },
-                    { label: 'Nomor Telepon', value: member.nomor_telepon, icon: '📱' },
+                    { label: 'Nama Lengkap', value: member.nama_lengkap, icon: '👤', color: '#00a54d', bg: '#f0fdf4' },
+                    { label: 'Email Terdaftar', value: member.email, icon: '✉️', color: '#902681', bg: '#fef2f2' },
+                    { label: 'Wilayah / Stasi', value: member.wilayah, icon: '📍', color: '#d12027', bg: '#fdf2f2' },
+                    { label: 'Nomor WhatsApp', value: member.nomor_telepon, icon: '📱', color: '#00a54d', bg: '#f0fdf4' },
                     {
-                      label: 'Tanggal Lahir',
+                      label: 'Ulang Tahun',
                       value: new Date(member.tanggal_lahir).toLocaleDateString('id-ID', {
                         day: 'numeric', month: 'long', year: 'numeric'
                       }),
-                      icon: '🎂'
+                      icon: '🎂', color: '#902681', bg: '#fef2f2'
                     },
                     {
-                      label: 'Terdaftar Sejak',
+                      label: 'Tanggal Join',
                       value: new Date(member.created_at).toLocaleDateString('id-ID', {
                         day: 'numeric', month: 'long', year: 'numeric'
                       }),
-                      icon: '📅'
+                      icon: '📅', color: '#d12027', bg: '#fdf2f2'
                     },
-                  ].map(({ label, value, icon }) => (
-                    <div key={label} className="flex items-start gap-3">
-                      <span className="text-lg mt-0.5">{icon}</span>
+                  ].map(({ label, value, icon, color, bg }) => (
+                    <div key={label} className="flex items-center gap-5 p-5 rounded-[2rem] transition-all hover:scale-[1.02] duration-300" 
+                         style={{ background: bg, border: `1px solid ${color}15` }}>
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-lg" 
+                           style={{ background: 'white', color }}>
+                        {icon}
+                      </div>
                       <div>
-                        <p className="text-xs text-gray-400 font-medium">{label}</p>
-                        <p className="text-sm text-gray-800 font-medium mt-0.5 leading-snug">{value}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: `${color}cc` }}>{label}</p>
+                        <p className="text-gray-900 font-black tracking-tight leading-snug">{value}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Alamat</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">{member.alamat}</p>
+              <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-8">
+                <h2 className="text-[10px] font-black text-gray-400 uppercase tracking-[.3em] mb-4">🏠 Alamat Pengiriman / Rumah</h2>
+                <p className="text-gray-700 font-bold leading-relaxed text-lg">{member.alamat}</p>
               </div>
             </div>
           </div>

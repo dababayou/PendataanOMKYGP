@@ -43,8 +43,10 @@ export async function verifyOtp(
   }
 
   // Send admin to /admin, everyone else to /dashboard
-  const adminEmail = process.env.ADMIN_EMAIL
-  const redirectTo = email.toLowerCase().trim() === adminEmail ? '/admin' : '/dashboard'
+  const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+  const redirectTo = adminEmails.includes(email.toLowerCase().trim()) ? '/admin' : '/dashboard'
 
   return { redirectTo }
 }
