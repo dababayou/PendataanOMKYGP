@@ -5,8 +5,7 @@ import { redirect } from 'next/navigation'
 
 export async function sendOtp(email: string): Promise<{ error?: string }> {
   const supabase = await createClient()
-
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
   const { error } = await supabase.auth.signInWithOtp({
     email: email.toLowerCase().trim(),

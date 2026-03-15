@@ -2,7 +2,7 @@
 
 import { createServiceClient } from '@/lib/supabase/server'
 
-const REDEEM_PASSWORD = 'omkygp'
+const REDEEM_PASSWORD = process.env.REDEEM_PASSWORD || 'ommkygp'
 
 export async function redeemCode(
   email: string,
