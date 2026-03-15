@@ -57,7 +57,7 @@ export default function HomePage() {
 
         <p className="text-white/80 text-lg md:text-2xl max-w-2xl mb-14 leading-relaxed font-medium">
           Wadah ekspresi, iman, dan karya pemuda Katolik<br />
-          <span className="text-white font-bold underline decoration-brand-green decoration-4 underline-offset-4">Stasi Santo Yohanes Gabriel Perboyre</span>.
+          <span className="text-white font-bold underline decoration-brand-green decoration-4 underline-offset-4">Stasi Santo Yohanes Gabriel Perboyre Surabaya</span>.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-6">

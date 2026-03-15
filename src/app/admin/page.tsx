@@ -54,7 +54,7 @@ export default async function AdminPage() {
              Admin Central
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Database Anggota 📂</h1>
-          <p className="text-gray-500 font-bold mt-2 text-lg">Halaman ini khusus untuk manajemen data OMK Yohanes Gabriel Perboyre.</p>
+          <p className="text-gray-500 font-bold mt-2 text-lg">Halaman ini khusus untuk manajemen data OMK Stasi Yohanes Gabriel Perboyre.</p>
         </div>
 
         {error ? (
@@ -73,7 +73,7 @@ export default async function AdminPage() {
       </main>
 
       <footer className="text-center py-10 text-gray-400 text-[10px] font-black uppercase tracking-[0.3em]">
-         Penjaga Data OMK Yohanes Gabriel Perboyre
+         Penjaga Data OMK Stasi Yohanes Gabriel Perboyre
       </footer>
     </div>
   )

@@ -80,7 +80,7 @@ export default function LoginPage() {
         {/* Logo and Welcome area */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Selamat Datang</h1>
-          <p className="text-white/60 text-sm font-bold uppercase tracking-widest mt-1">OMK Yohanes Gabriel Perboyre</p>
+          <p className="text-white/60 text-sm font-bold uppercase tracking-widest mt-1">OMK stasi Yohanes Gabriel Perboyre</p>
         </div>
 
         {/* Card */}

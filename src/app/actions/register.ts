@@ -26,11 +26,17 @@ async function generateUniqueNumber(supabase: ReturnType<typeof createServiceCli
 
 export interface RegisterFormData {
   nama_lengkap: string
-  alamat: string
+  alamat_ktp: string
+  alamat_domisili: string
   nomor_telepon: string
   email: string
   wilayah: string
   tanggal_lahir: string
+  is_stasi_ygp: boolean
+  asal_paroki_stasi?: string
+  status_pendidikan: string
+  kelas_sekolah?: string
+  nama_sekolah_kampus?: string
 }
 
 export interface RegisterResult {
@@ -43,11 +49,13 @@ export async function registerMember(data: RegisterFormData): Promise<RegisterRe
   // Basic server-side validation
   if (
     !data.nama_lengkap.trim() ||
-    !data.alamat.trim() ||
+    !data.alamat_ktp.trim() ||
+    !data.alamat_domisili.trim() ||
     !data.nomor_telepon.trim() ||
     !data.email.trim() ||
     !data.wilayah.trim() ||
-    !data.tanggal_lahir
+    !data.tanggal_lahir ||
+    !data.status_pendidikan
   ) {
     return { success: false, error: 'Semua kolom wajib diisi.' }
   }
@@ -81,11 +89,17 @@ export async function registerMember(data: RegisterFormData): Promise<RegisterRe
   // Insert member record
   const { error: insertError } = await supabase.from('members').insert({
     nama_lengkap: data.nama_lengkap.trim(),
-    alamat: data.alamat.trim(),
+    alamat_ktp: data.alamat_ktp.trim(),
+    alamat_domisili: data.alamat_domisili.trim(),
     nomor_telepon: data.nomor_telepon.trim(),
     email: data.email.toLowerCase().trim(),
     wilayah: data.wilayah,
     tanggal_lahir: data.tanggal_lahir,
+    is_stasi_ygp: data.is_stasi_ygp,
+    asal_paroki_stasi: data.asal_paroki_stasi?.trim(),
+    status_pendidikan: data.status_pendidikan,
+    kelas_sekolah: data.kelas_sekolah,
+    nama_sekolah_kampus: data.nama_sekolah_kampus?.trim(),
     unique_number: uniqueNumber,
   })
 

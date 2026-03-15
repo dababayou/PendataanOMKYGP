@@ -62,36 +62,44 @@ export function Select({ label, error, options, placeholder, className = '', id,
         {label}
         {props.required && <span className="ml-0.5" style={{ color: COLORS.red }}>*</span>}
       </label>
-      <select
-        id={inputId}
-        style={{
-          borderColor: error ? COLORS.red : undefined,
-          ...style
-        }}
-        className={`
-          w-full px-4 py-3 rounded-xl border text-sm
-          transition-all duration-200 outline-none bg-white
-          ${error
-            ? 'focus:ring-2 focus:ring-red-500/10'
-            : 'border-gray-300 focus:border-brand-green focus:ring-4 focus:ring-green-500/10'
-          }
-          disabled:bg-gray-50 disabled:cursor-not-allowed
-          shadow-sm
-          ${className}
-        `}
-        {...props}
-      >
-        {placeholder && (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        )}
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          id={inputId}
+          style={{
+            borderColor: error ? COLORS.red : undefined,
+            backgroundImage: 'none',
+            ...style
+          }}
+          className={`
+            w-full px-4 py-3 pr-12 rounded-xl border text-sm appearance-none
+            transition-all duration-200 outline-none bg-white
+            ${error
+              ? 'focus:ring-2 focus:ring-red-500/10'
+              : 'border-gray-300 focus:border-brand-green focus:ring-4 focus:ring-green-500/10'
+            }
+            disabled:bg-gray-50 disabled:cursor-not-allowed
+            shadow-sm cursor-pointer
+            ${className}
+          `}
+          {...props}
+        >
+          {placeholder && (
+            <option value="" disabled>
+              {placeholder}
+            </option>
+          )}
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
       {error && <p className="text-xs font-medium ml-1" style={{ color: COLORS.red }}>{error}</p>}
     </div>
   )
