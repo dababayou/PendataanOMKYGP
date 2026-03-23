@@ -78,6 +78,17 @@ export async function registerMember(data: RegisterFormData): Promise<RegisterRe
     return { success: false, error: 'Email sudah terdaftar. Silakan login untuk melihat nomor unik Anda.' }
   }
 
+  // Check for duplicate phone number
+  const { data: existingPhone } = await supabase
+    .from('members')
+    .select('id')
+    .eq('nomor_telepon', data.nomor_telepon.trim())
+    .maybeSingle()
+
+  if (existingPhone) {
+    return { success: false, error: 'Nomor WhatsApp sudah terdaftar. Gunakan nomor lain atau login dengan email Anda.' }
+  }
+
   // Generate unique number
   let uniqueNumber: string
   try {

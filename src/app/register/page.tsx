@@ -101,6 +101,16 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0
   }
 
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false)
+
+  useEffect(() => {
+    // Check if this device has already registered
+    const isRegistered = document.cookie.split('; ').find(row => row.startsWith('ygp_registered='))
+    if (isRegistered) {
+      setAlreadyRegistered(true)
+    }
+  }, [])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) return
@@ -119,8 +129,33 @@ export default function RegisterPage() {
     }
 
     const res = await registerMember(finalForm)
+    
+    if (res.success) {
+      // Set long-term cookie to mark device as registered (365 days)
+      document.cookie = `ygp_registered=true; path=/; max-age=${60 * 60 * 24 * 365}`
+    }
+
     setResult(res)
     setLoading(false)
+  }
+
+  if (alreadyRegistered && !result?.success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-brand-green/5">
+        <div className="max-w-md w-full bg-white rounded-[3rem] shadow-2xl p-10 text-center border-4 border-amber-400/20">
+          <div className="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl text-amber-600">⚠️</span>
+          </div>
+          <h2 className="text-2xl font-black text-gray-900 mb-4 tracking-tight">Perangkat Sudah Terdaftar</h2>
+          <p className="text-gray-500 font-bold mb-8">
+            Kamu hanya diperbolehkan mendaftar satu kali per perangkat. Silakan login ke dashboard untuk melihat data kamu.
+          </p>
+          <Link href="/login" className="block w-full py-4 bg-brand-green text-white font-black rounded-2xl shadow-lg hover:shadow-brand-green/30 transition-all uppercase tracking-widest text-sm">
+            Masuk Ke Dashboard
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   if (result?.success) {
