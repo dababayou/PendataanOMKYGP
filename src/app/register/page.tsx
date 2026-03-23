@@ -53,7 +53,7 @@ export default function RegisterPage() {
     email: '',
     wilayah: '',
     tanggal_lahir: '',
-    is_stasi_ygp: true,
+    is_stasi_ygp: null,
     asal_paroki_stasi: '',
     status_pendidikan: '',
     kelas_sekolah: '',
@@ -63,6 +63,7 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ success: boolean; uniqueNumber?: string; error?: string } | null>(null)
+  const [showFloatingError, setShowFloatingError] = useState(false)
 
   useEffect(() => {
     if (sameAsKtp) {
@@ -83,7 +84,8 @@ export default function RegisterPage() {
     }
     if (!form.wilayah) newErrors.wilayah = 'Wilayah wajib dipilih.'
     if (!form.tanggal_lahir) newErrors.tanggal_lahir = 'Tanggal lahir wajib diisi.'
-    if (!form.is_stasi_ygp && !form.asal_paroki_stasi?.trim()) {
+    if (form.is_stasi_ygp === null) newErrors.is_stasi_ygp = 'Jawaban wajib dipilih.'
+    if (form.is_stasi_ygp === false && !form.asal_paroki_stasi?.trim()) {
       newErrors.asal_paroki_stasi = 'Asal paroki/stasi wajib diisi.'
     }
     if (!form.status_pendidikan) {
@@ -98,6 +100,22 @@ export default function RegisterPage() {
     }
 
     setErrors(newErrors)
+    
+    // Scroll to the first error and show floating notification
+    if (Object.keys(newErrors).length > 0) {
+      setShowFloatingError(true)
+      setTimeout(() => {
+        const firstErrorKey = Object.keys(newErrors)[0]
+        // Transform key to match ID (e.g. "nama_lengkap" -> "nama-lengkap")
+        const id = firstErrorKey.replace(/_/g, '-')
+        const element = document.getElementById(id)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          element.focus({ preventScroll: true })
+        }
+      }, 100)
+    }
+
     return Object.keys(newErrors).length === 0
   }
 
@@ -222,6 +240,27 @@ export default function RegisterPage() {
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full blur-[120px] opacity-10" style={{ background: '#00a54d' }} />
       </div>
 
+      {/* Floating Error Bar */}
+      {showFloatingError && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-full max-w-[90%] md:max-w-md animate-pop">
+          <div className="bg-red-600 text-white p-4 rounded-2xl shadow-2xl border-2 border-white/20 flex items-center gap-4">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+              <span className="text-xl">⚠️</span>
+            </div>
+            <div className="flex-1">
+              <p className="font-black text-xs uppercase tracking-widest leading-none mb-1">Cek Kembali Form Kamu</p>
+              <p className="text-white/80 text-xs font-bold leading-tight line-clamp-2">Ada file yang belum terisi atau salah. Layar sudah di-scroll ke bagian yang error.</p>
+            </div>
+            <button 
+              onClick={() => setShowFloatingError(false)}
+              className="w-8 h-8 rounded-lg bg-black/10 hover:bg-black/20 flex items-center justify-center transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-3xl mx-auto relative z-10">
         <div className="mb-10 flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-2 text-brand-green hover:text-brand-green-dark text-sm font-black transition-all group">
@@ -265,6 +304,7 @@ export default function RegisterPage() {
 
                 <div className="md:col-span-2">
                   <Input
+                    id="nama-lengkap"
                     label="Nama Lengkap"
                     placeholder="Contoh: Yohanes Gabriel"
                     required
@@ -276,6 +316,7 @@ export default function RegisterPage() {
 
                 <div className="md:col-span-2 space-y-4">
                   <TextArea
+                    id="alamat-ktp"
                     label="Alamat Sesuai KTP"
                     placeholder="Tulis alamat sesuai KTP kamu ya..."
                     required
@@ -300,6 +341,7 @@ export default function RegisterPage() {
                   {!sameAsKtp && (
                     <div className="animate-pop">
                       <TextArea
+                        id="alamat-domisili"
                         label="Alamat Domisili"
                         placeholder="Tulis alamat tempat tinggal kamu sekarang..."
                         required={!sameAsKtp}
@@ -312,6 +354,7 @@ export default function RegisterPage() {
                 </div>
 
                 <Input
+                  id="nomor-telepon"
                   label="Nomor WhatsApp"
                   placeholder="08xxxxxxxxxx"
                   type="tel"
@@ -322,6 +365,7 @@ export default function RegisterPage() {
                 />
 
                 <Input
+                  id="email"
                   label="Alamat Email"
                   placeholder="nama@email.com"
                   type="email"
@@ -334,6 +378,7 @@ export default function RegisterPage() {
 
                 <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
                   <Select
+                    id="wilayah"
                     label="Wilayah / Lingkungan"
                     required
                     value={form.wilayah}
@@ -344,6 +389,7 @@ export default function RegisterPage() {
                   />
 
                   <Input
+                    id="tanggal-lahir"
                     label="Tanggal Lahir"
                     type="date"
                     required
@@ -361,11 +407,13 @@ export default function RegisterPage() {
 
                 <div className="md:col-span-2">
                   <Select
+                    id="is-stasi-ygp"
                     label="Apakah asalmu dari Stasi Yohanes Gabriel Perboyre?"
                     required
-                    value={form.is_stasi_ygp ? 'Ya' : 'Tidak'}
-                    onChange={(e) => setForm({ ...form, is_stasi_ygp: e.target.value === 'Ya' })}
+                    value={form.is_stasi_ygp === null ? '' : form.is_stasi_ygp ? 'Ya' : 'Tidak'}
+                    onChange={(e) => setForm({ ...form, is_stasi_ygp: e.target.value === 'Ya', asal_paroki_stasi: e.target.value === 'Ya' ? '' : form.asal_paroki_stasi })}
                     error={errors.is_stasi_ygp}
+                    placeholder="Pilih jawaban..."
                     options={[
                       { value: 'Ya', label: 'Ya, saya anggota Stasi YGP' },
                       { value: 'Tidak', label: 'Tidak' },
@@ -373,9 +421,10 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                {!form.is_stasi_ygp && (
+                {form.is_stasi_ygp === false && (
                   <div className="md:col-span-2 animate-pop">
                     <Input
+                      id="asal-paroki-stasi"
                       label="Asal Paroki / Stasi"
                       placeholder="Sebutkan asal paroki atau stasi kamu..."
                       required={!form.is_stasi_ygp}
@@ -388,6 +437,7 @@ export default function RegisterPage() {
 
                 <div className="md:col-span-2 space-y-8">
                   <Select
+                    id="status-pendidikan"
                     label="Status Saat Ini"
                     required
                     value={form.status_pendidikan}
@@ -396,10 +446,11 @@ export default function RegisterPage() {
                     options={STATUS_PENDIDIKAN_OPTIONS}
                     placeholder="Pilih status kamu..."
                   />
-
+ 
                   {form.status_pendidikan === 'SMA/SMK/Sederajat' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-pop">
                       <Select
+                        id="kelas-sekolah"
                         label="Kelas"
                         required
                         value={form.kelas_sekolah}
@@ -409,6 +460,7 @@ export default function RegisterPage() {
                         placeholder="Pilih kelas..."
                       />
                       <Input
+                        id="nama-sekolah-kampus"
                         label="Nama Sekolah"
                         placeholder="Contoh: SMA Katolik St. Louis"
                         required
@@ -418,10 +470,11 @@ export default function RegisterPage() {
                       />
                     </div>
                   )}
-
+ 
                   {form.status_pendidikan === 'Kuliah' && (
                     <div className="animate-pop">
                       <Input
+                        id="nama-sekolah-kampus"
                         label="Nama Kampus / Universitas"
                         placeholder="Contoh: Universitas Airlangga"
                         required

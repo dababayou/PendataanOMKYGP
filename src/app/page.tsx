@@ -21,7 +21,7 @@ export default function HomePage() {
       <header className="relative z-10 flex items-center justify-between px-6 py-6 max-w-6xl mx-auto w-full">
         <div className="flex items-center gap-3 group cursor-pointer">
           <img src="/logo.png" alt="OMK YGP" className="h-12 w-12 object-contain drop-shadow-2xl transition-transform group-hover:scale-110" />
-          <span className="text-white font-black text-xl tracking-tight drop-shadow-md">OMK YGP Surabaya</span>
+          <span className="text-white font-black text-xl tracking-tight drop-shadow-md">OMK YGP SURABAYA</span>
         </div>
         <Link
           href="/login"

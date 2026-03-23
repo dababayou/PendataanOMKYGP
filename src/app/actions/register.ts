@@ -32,7 +32,7 @@ export interface RegisterFormData {
   email: string
   wilayah: string
   tanggal_lahir: string
-  is_stasi_ygp: boolean
+  is_stasi_ygp: boolean | null
   asal_paroki_stasi?: string
   status_pendidikan: string
   kelas_sekolah?: string

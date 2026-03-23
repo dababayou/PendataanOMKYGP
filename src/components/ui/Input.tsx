@@ -32,7 +32,7 @@ export function Input({ label, error, hint, className = '', id, style, ...props 
           transition-all duration-200 outline-none
           placeholder:text-gray-400
           ${error
-            ? 'focus:ring-2 focus:ring-red-500/10'
+            ? 'focus:ring-4 focus:ring-red-500/20'
             : 'border-gray-300 focus:border-brand-green focus:ring-4 focus:ring-green-500/10 bg-white'
           }
           disabled:bg-gray-50 disabled:cursor-not-allowed
@@ -74,7 +74,7 @@ export function Select({ label, error, options, placeholder, className = '', id,
             w-full px-4 py-3 pr-12 rounded-xl border text-sm appearance-none
             transition-all duration-200 outline-none bg-white
             ${error
-              ? 'focus:ring-2 focus:ring-red-500/10'
+              ? 'focus:ring-4 focus:ring-red-500/20'
               : 'border-gray-300 focus:border-brand-green focus:ring-4 focus:ring-green-500/10'
             }
             disabled:bg-gray-50 disabled:cursor-not-allowed
@@ -131,7 +131,7 @@ export function TextArea({ label, error, className = '', id, style, ...props }: 
           transition-all duration-200 outline-none
           placeholder:text-gray-400
           ${error
-            ? 'focus:ring-2 focus:ring-red-500/10'
+            ? 'focus:ring-4 focus:ring-red-500/20'
             : 'border-gray-300 focus:border-brand-green focus:ring-4 focus:ring-green-500/10 bg-white'
           }
           shadow-sm
