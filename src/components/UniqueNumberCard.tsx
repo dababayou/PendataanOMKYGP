@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { redeemCode } from '@/app/actions/redeem'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -17,6 +17,12 @@ export function UniqueNumberCard({
   email,
 }: UniqueNumberCardProps) {
   const [isRedeemed, setIsRedeemed] = useState(initialIsRedeemed)
+  
+  // Sync state if prop changes (e.g., after admin toggle)
+  useEffect(() => {
+    setIsRedeemed(initialIsRedeemed)
+  }, [initialIsRedeemed])
+
   const [showModal, setShowModal] = useState(false)
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)

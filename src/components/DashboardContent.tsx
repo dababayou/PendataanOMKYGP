@@ -237,7 +237,7 @@ export function DashboardContent({ member, isAdmin }: DashboardContentProps) {
 
   // Add Birthday at the end
   profileData.push({
-    label: 'Ulang Tahun',
+    label: 'Tanggal Lahir',
     value: new Date(member.tanggal_lahir).toLocaleDateString('id-ID', {
       day: 'numeric', month: 'long', year: 'numeric'
     }),

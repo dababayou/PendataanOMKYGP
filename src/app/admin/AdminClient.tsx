@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { toggleRedemptionStatus } from '@/app/actions/members'
 
 interface Member {
   id: string
@@ -21,9 +22,10 @@ interface AdminClientProps {
 }
 
 export default function AdminClient({ initialMembers }: AdminClientProps) {
-  const [members] = useState<Member[]>(initialMembers)
+  const [members, setMembers] = useState<Member[]>(initialMembers)
   const [search, setSearch] = useState('')
   const [wilayahFilter, setWilayahFilter] = useState('')
+  const [togglingId, setTogglingId] = useState<string | null>(null)
 
   const wilayahList = Array.from(new Set(members.map((m) => m.wilayah))).sort()
 
@@ -36,6 +38,23 @@ export default function AdminClient({ initialMembers }: AdminClientProps) {
     const matchesWilayah = !wilayahFilter || m.wilayah === wilayahFilter
     return matchesSearch && matchesWilayah
   })
+
+  async function handleToggleRedeemed(id: string, currentStatus: boolean) {
+    if (togglingId) return
+    setTogglingId(id)
+    const newStatus = !currentStatus
+    
+    // Optimistic update
+    setMembers(prev => prev.map(m => m.id === id ? { ...m, is_redeemed: newStatus } : m))
+    
+    const res = await toggleRedemptionStatus(id, newStatus)
+    if (!res.success) {
+      alert(res.error || 'Gagal memperbarui status')
+      // Rollback
+      setMembers(prev => prev.map(m => m.id === id ? { ...m, is_redeemed: currentStatus } : m))
+    }
+    setTogglingId(null)
+  }
 
   function exportCSV() {
     const headers = ['Nama', 'Email', 'Wilayah', 'Nomor Unik', 'Nomor WA', 'Tgl Lahir', 'Status Tukar', 'Terdaftar']
@@ -132,16 +151,25 @@ export default function AdminClient({ initialMembers }: AdminClientProps) {
                    </span>
                 </td>
                 <td className="px-6 py-5">
-                  {m.is_redeemed ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-100">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      SUDAH
-                    </span>
-                  ) : (
-                    <span className="px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-[10px] font-black uppercase tracking-widest">
-                      BELUM
-                    </span>
-                  )}
+                  <button
+                    onClick={() => handleToggleRedeemed(m.id, m.is_redeemed)}
+                    disabled={togglingId === m.id}
+                    className={`
+                      inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all
+                      ${m.is_redeemed 
+                        ? 'bg-green-50 text-green-600 border-green-100 hover:bg-green-100' 
+                        : 'bg-gray-100 text-gray-400 border-gray-200 hover:bg-gray-200 hover:text-gray-600'
+                      }
+                      ${togglingId === m.id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}
+                    `}
+                  >
+                    {togglingId === m.id ? (
+                      <span className="w-2 h-2 rounded-full bg-current animate-ping" />
+                    ) : (
+                      <span className={`w-1.5 h-1.5 rounded-full ${m.is_redeemed ? 'bg-green-500' : 'bg-gray-300'}`} />
+                    )}
+                    {m.is_redeemed ? 'SUDAH TUKAR' : 'BELUM TUKAR'}
+                  </button>
                 </td>
                 <td className="px-6 py-5">
                    <div className="text-sm font-bold text-gray-700">{m.nomor_telepon}</div>

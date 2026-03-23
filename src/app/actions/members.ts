@@ -37,3 +37,22 @@ export async function updateMember(email: string, data: UpdateMemberData) {
   
   return { success: true }
 }
+
+export async function toggleRedemptionStatus(id: string, is_redeemed: boolean) {
+  const supabase = createServiceClient()
+
+  const { error } = await supabase
+    .from('members')
+    .update({ is_redeemed })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Toggle redemption error details:', error)
+    return { success: false, error: `Gagal: ${error.message}` }
+  }
+
+  revalidatePath('/admin')
+  revalidatePath('/dashboard')
+  
+  return { success: true }
+}
